@@ -1,2 +1,2 @@
 # QSGS
-Produce porous media with Quartet Structure Generation Set (QSGS) method.
+Generate porous media with Quartet Structure Generation Set (QSGS) method.
