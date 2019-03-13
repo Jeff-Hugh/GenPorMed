@@ -14,8 +14,8 @@
 
 using namespace std;
 
-const float phi = 0.1;
-const float p_cd = 0.05;
+const float phi = 0.1;			/// target porosity
+const float p_cd = 0.05;		/// core distribution probability
 const float z = 0.05, f = 0.0125;
 const float p_d1 = z, p_d2 = z, p_d3 = z, p_d4 = z;
 const float p_d5 = f, p_d6 = f, p_d7 = f, p_d8 = f;
