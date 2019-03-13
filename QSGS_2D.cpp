@@ -175,7 +175,8 @@ void grow()
 	{
 		for (int j = 0; j < N; j++)
 		{
-			Solid[i][j] = Solid_p[i][j];
+			int s_temp = Solid[i][j] + Solid_p[i][j];
+			if (s_temp > 0) Solid[i][j] = 1;
 		}
 	}
 	cout << "One time grow compeleted" << endl;
