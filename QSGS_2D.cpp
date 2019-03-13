@@ -169,7 +169,7 @@ void grow()
 			}
 		}
 	}
-	cout << "Neighbor produced" << endl;
+	cout << "Neighbor generated" << endl;
 
 	for (int i = 0; i < N; i++)
 	{
@@ -187,15 +187,15 @@ int main()
 {
 	float phi_p;
 
-	/// Produce random seed
+	/// Generate random seed
 	srand((unsigned)time(NULL));
-	cout << "Produce random seed completed" <<endl;
+	cout << "Generate random seed completed" <<endl;
 
 	/// Initialization
 	init();
 	cout << "Initialization completed" << endl;
 
-	/// Produce growth core
+	/// Generate growth core
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
@@ -206,9 +206,9 @@ int main()
 			}
 		}
 	}
-	cout << "Produce growth core completed" << endl;
+	cout << "Generate growth core completed" << endl;
 
-	///  Produce process
+	///  Generate process
 	do
 	{
 		grow();
