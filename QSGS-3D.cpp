@@ -108,6 +108,61 @@ void grow()
 	cout << "One time grow compeleted" << endl;
 }
 
+void output2txt()
+{
+	ofstream outfile;
+	string filename;
+	filename = "porous.out";
+	outfile.open(filename);
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < N; j++)
+			for (int k = 0; k < N; k++)
+				outfile << i << " " << j << " " << k << " " << Solid[i][j][k] << endl;
+	outfile.close();
+	cout << "Grow completed" << endl;
+}
+
+void output2tecplot()
+{
+	string out_buffer1,out_buffer2;
+
+	ofstream outfile;
+	string filename = "porous.plt";
+	string title = "3D porous media";
+	outfile.open(filename);
+
+	outfile << "TITLE = \"" << title << "\"" << endl;
+	outfile << "VARIABLES = \"X\", \"Y\", \"Z\" "<< endl;
+
+	/// output solid position
+	outfile << "ZONE  t=\"solid\" " << endl;
+	outfile << "ZONE I = " << N << ", J = " << N  << ", K = " << N  << ", F = point" << endl;
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+			for (int k = 0; k < N; k++)
+				if (Solid[i][j][k] == 1)
+					out_buffer1 += std::to_string(i) + " " + std::to_string(j) + " " + std::to_string(k) + "\n";
+					
+		outfile << out_buffer1;
+	}
+
+	/// output pore position
+	outfile << "ZONE  t=\"pore\" " << endl;
+	outfile << "ZONE I = " << N << ", J = " << N << ", K = " << N << ", F = point" << endl;
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+			for (int k = 0; k < N; k++)
+				if (Solid[i][j][k] == 0)
+					out_buffer2 += std::to_string(i) + " " + std::to_string(j) + " " + std::to_string(k) + "\n";
+
+		outfile << out_buffer2;
+	}
+
+	outfile.close();
+	cout << "Grow completed" << endl;
+}
 
 int main()
 {
@@ -145,19 +200,10 @@ int main()
 		cout << phi_p << endl;
 	} while (phi_p < phi);
 
-	cout << "Grow completed" << endl;
+	
 
 	/// Output result
-	ofstream outfile;
-	string filename;
-	filename = "porous.out";
-	outfile.open(filename);
-	for (int i = 0; i < N; i++)
-		for (int j = 0; j < N; j++)
-			for (int k = 0; k < N; k++)
-				outfile << i << " " << j << " " << k << " " << Solid[i][j][k] << endl;
-	outfile.close();
-	cout << "Output result completed" << endl;
+	output2tecplot();
 
 	system("pause");
 
