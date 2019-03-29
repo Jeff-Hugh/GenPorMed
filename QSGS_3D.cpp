@@ -12,12 +12,13 @@
 #include <string>
 #include <fstream>
 #include <omp.h>
+#include <stdio.h>
 
 using namespace std;
 
 #define NUM_THREADS  8			/// OpenMP thread
 
-const float phi = 0.1;			/// target porosity
+const float phi = 0.7;			/// target porosity
 const float p_cd = 0.05;		/// core distribution probability
 const float p_surface = 0.2, p_edge = p_surface / 12.0, p_point = p_edge / 8.0;	/// generation probability
 
@@ -108,6 +109,15 @@ void grow()
 	cout << "One time grow compeleted" << endl;
 }
 
+int addArray(int array[], int length) 
+{
+	int sum = 0;
+	for (int count = 0; count < length; count++) {
+		sum += array[count];
+	}
+	return sum;
+}
+
 void output2txt()
 {
 	ofstream outfile;
@@ -124,7 +134,8 @@ void output2txt()
 
 void output2tecplot()
 {
-	string out_buffer1,out_buffer2;
+	string out_buffer1 = "";
+	string out_buffer2 = "";
 
 	ofstream outfile;
 	string filename = "porous.plt";
@@ -132,32 +143,18 @@ void output2tecplot()
 	outfile.open(filename);
 
 	outfile << "TITLE = \"" << title << "\"" << endl;
-	outfile << "VARIABLES = \"X\", \"Y\", \"Z\" "<< endl;
 
 	/// output solid position
-	outfile << "ZONE  t=\"solid\" " << endl;
-	outfile << "ZONE I = " << N << ", J = " << N  << ", K = " << N  << ", F = point" << endl;
+	outfile << "VARIABLES = \"X\", \"Y\", \"Z\" \"value\" " << endl;
+	outfile << "ZONE  t=\"solid\" I = " << N << ", J = " << N  << ", K = " << N  << ", F = point" << endl;
 	for (int i = 0; i < N; i++)
 	{
+		out_buffer1 = "";
 		for (int j = 0; j < N; j++)
 			for (int k = 0; k < N; k++)
-				if (Solid[i][j][k] == 1)
-					out_buffer1 += std::to_string(i) + " " + std::to_string(j) + " " + std::to_string(k) + "\n";
+					out_buffer1 += std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k) + "," + std::to_string(Solid[i][j][k]) + "\n";
 					
 		outfile << out_buffer1;
-	}
-
-	/// output pore position
-	outfile << "ZONE  t=\"pore\" " << endl;
-	outfile << "ZONE I = " << N << ", J = " << N << ", K = " << N << ", F = point" << endl;
-	for (int i = 0; i < N; i++)
-	{
-		for (int j = 0; j < N; j++)
-			for (int k = 0; k < N; k++)
-				if (Solid[i][j][k] == 0)
-					out_buffer2 += std::to_string(i) + " " + std::to_string(j) + " " + std::to_string(k) + "\n";
-
-		outfile << out_buffer2;
 	}
 
 	outfile.close();
@@ -196,11 +193,9 @@ int main()
 			for (int j = 0; j < N; j++)
 				for (int k = 0; k < N; k++)
 					t_temp += Solid[i][j][k];
-		phi_p = t_temp / (N * N * N);
+		phi_p = 1 - t_temp / (N * N * N);
 		cout << phi_p << endl;
-	} while (phi_p < phi);
-
-	
+	} while (phi_p > phi);
 
 	/// Output result
 	output2tecplot();
