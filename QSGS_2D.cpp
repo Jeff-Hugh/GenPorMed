@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const float phi = 0.1;			/// target porosity
+const float phi = 0.6;			/// target porosity
 const float p_cd = 0.05;		/// core distribution probability
 const float z = 0.05, f = 0.0125;
 const float p_d1 = z, p_d2 = z, p_d3 = z, p_d4 = z;
@@ -222,10 +222,10 @@ int main()
 				t_temp += Solid[i][j];
 			}
 		}
-		phi_p = t_temp / (N * N);
+		phi_p = 1 - t_temp / (N * N);
 		cout << phi_p << endl;
 
-	} while (phi_p < phi);
+	} while (phi_p > phi);
 	cout << "Grow completed" << endl;
 
 	/// Output result
