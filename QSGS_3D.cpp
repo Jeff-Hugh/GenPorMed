@@ -109,15 +109,6 @@ void grow()
 	cout << "One time grow compeleted" << endl;
 }
 
-int addArray(int array[], int length) 
-{
-	int sum = 0;
-	for (int count = 0; count < length; count++) {
-		sum += array[count];
-	}
-	return sum;
-}
-
 void output2txt()
 {
 	ofstream outfile;
@@ -135,17 +126,16 @@ void output2txt()
 void output2tecplot()
 {
 	string out_buffer1 = "";
-	string out_buffer2 = "";
 
 	ofstream outfile;
-	string filename = "porous.plt";
+	string filename = "porous_3D.plt";
 	string title = "3D porous media";
 	outfile.open(filename);
 
 	outfile << "TITLE = \"" << title << "\"" << endl;
 
 	/// output solid position
-	outfile << "VARIABLES = \"X\", \"Y\", \"Z\" \"value\" " << endl;
+	outfile << "VARIABLES = \"X\", \"Y\", \"Z\",\"value\" " << endl;
 	outfile << "ZONE  t=\"solid\" I = " << N << ", J = " << N  << ", K = " << N  << ", F = point" << endl;
 	for (int i = 0; i < N; i++)
 	{
@@ -158,7 +148,7 @@ void output2tecplot()
 	}
 
 	outfile.close();
-	cout << "Grow completed" << endl;
+	cout << "Output completed" << endl;
 }
 
 int main()

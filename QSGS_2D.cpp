@@ -182,6 +182,53 @@ void grow()
 	cout << "One time grow compeleted" << endl;
 }
 
+void output2tecplot()
+{
+	string out_buffer = "";
+
+	ofstream outfile;
+	string filename = "porous_2D.plt";
+	string title = "2D porous media";
+	outfile.open(filename);
+
+	outfile << "TITLE = \"" << title << "\"" << endl;
+
+	/// output solid position
+	outfile << "VARIABLES = \"X\", \"Y\", \"Z\",\"value\" " << endl;
+	outfile << "ZONE  t=\"solid\" I = " << N << ", J = " << N << ", K = " << 1 << ", F = point" << endl;
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			out_buffer += std::to_string(i) + "," + std::to_string(j) + ", 0, " + std::to_string(Solid[i][j]) + "\n";
+		}
+	}
+	outfile << out_buffer;
+	outfile.close();
+	cout << "Output completed" << endl;
+}
+
+void output2gnuplot()
+{
+	string out_buffer = "";
+	ofstream outfile;
+	string filename = "porous.out";
+
+	outfile.open(filename);
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			out_buffer += std::to_string(Solid[i][j]) + " ";
+		}
+		out_buffer += "\n";
+	}
+	outfile << out_buffer;
+	outfile.close();
+	cout << "Output completed" << endl;
+
+	system("pause");
+}
 
 int main()
 {
@@ -229,20 +276,7 @@ int main()
 	cout << "Grow completed" << endl;
 
 	/// Output result
-	ofstream outfile;
-	string filename;
-	filename = "porous.out";
-	outfile.open(filename);
-	for (int i = 0; i < N; i++)
-	{
-		for (int j = 0; j < N; j++)
-		{
-			outfile << Solid[i][j] << " ";
-		}
-		outfile << endl;
-	}
-	outfile.close();
-	cout << "Output result completed" << endl;
+	output2tecplot();
 
 	system("pause");
 
