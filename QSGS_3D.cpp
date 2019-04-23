@@ -1,7 +1,7 @@
 /// \file GSGS.cpp
 /// \reference Wang, M., Wang, J., Pan, N., & Chen, S. (2007). 
 /// Mesoscopic predictions of the effective thermal conductivity for microscale random porous media. 
-/// Physical Review E - Statistical, Nonlinear, and Soft Matter Physics, 75(3), 1¨C10.
+/// Physical Review E - Statistical, Nonlinear, and Soft Matter Physics, 75(3), 1ï¿½C10.
 /// https://doi.org/10.1103/PhysRevE.75.036702
 /// 
 /// 
@@ -151,6 +151,66 @@ void output2tecplot()
 	cout << "Output completed" << endl;
 }
 
+bool is_interior(int i, int j, int k)
+{
+	if (Solid[i][j][k] == 1)
+	{
+		int sum_i = 0;
+		for (int x = -1; x <= 1; x++)
+			for (int y = -1; y <= 1; y++)
+				for (int z = -1; z <= 1; z++)
+					{
+						if (!((i + x) < 0 || (j + y) < 0 || (k + z) < 0 || (i + x) > N - 1 || (j + y) > N - 1 || (k + z) > N - 1))
+							{
+								sum_i =+ Solid[i+x][j+y][k+z];
+								if (Solid[i+x][j+y][k+z] == 0) return false;
+							}
+						else
+							{
+								sum_i =+ 1;
+							}
+							
+					}
+					
+		if (sum_i == 27) return true;
+	}
+	
+
+				
+}
+
+void output2palabos()
+{
+    ofstream outfile;
+    string filename = "porous_3D.dat";
+    
+	/// Every voxel is given a value: 
+	/// 0 for a fluid voxel (blue), 
+	/// 1 for a material voxel that touches (26-connected) a pore voxel (green),
+	/// 2 for an interior material voxel (red) illustrated again by the inlet slice (left) and the halfway slice (right)
+    omp_set_num_threads(NUM_THREADS);
+	# pragma omp parallel for
+	for (int i = 0; i < N; i++)
+		for (int j = 0; j < N; j++)
+			 for (int k = 0; k < N; k++)
+				if (is_interior(i,j,k)) Solid[i][j][k] = 2;
+
+
+    outfile.open(filename);
+	string out_buffer2 = "";
+	for (int i = 0; i < N; i++)
+	{
+		out_buffer2 = "";
+		for (int j = 0; j < N; j++)
+			for (int k = 0; k < N; k++)
+					out_buffer2 += std::to_string(Solid[i][j][k]) + "\n";
+					
+		outfile << out_buffer2;
+	}
+	outfile.close();
+	cout << "Output completed" << endl;
+}
+
 int main()
 {
 	float phi_p;		/// tempprary porosity 
@@ -188,9 +248,8 @@ int main()
 	} while (phi_p > phi);
 
 	/// Output result
-	output2tecplot();
-
-	system("pause");
+	///output2tecplot();
+	output2palabos();
 
 	return 0;
 }
