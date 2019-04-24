@@ -193,8 +193,11 @@ void output2palabos()
 	for (int i = 0; i < N; i++)
 		for (int j = 0; j < N; j++)
 			 for (int k = 0; k < N; k++)
-				if (is_interior(i,j,k)) Solid[i][j][k] = 2;
-
+			 {
+				 if (is_interior(i,j,k)) Solid[i][j][k] = 2;
+				 if ((j == 0) || (k == 0) || (j == N-1) || (k == N-1)) Solid[i][j][k] = 2;   /// pixels on the border fo y and z directions are set to be 2
+			 }
+				
 
     outfile.open(filename);
 	string out_buffer2 = "";
