@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Data file
+*.dat
+*.plt
