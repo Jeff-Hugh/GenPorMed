@@ -21,20 +21,19 @@ const float p_d1 = z, p_d2 = z, p_d3 = z, p_d4 = z;
 const float p_d5 = f, p_d6 = f, p_d7 = f, p_d8 = f;
 
 const int N = 300;
-int Solid[N][N];
+const int M = 300;
 int Grow_Times = 0;
 
-/// No solid in the beginning.
-void init()
+int CellIndex(int x, int y, const int M, const int N)
 {
-	for (int i = 0; i < N; i++)
-	{
-		for (int j = 0; j < N; j++)
-		{
-			Solid[i][j] = 0;
-		}
-	}
+	assert(x >= 0 && x < N);
+	assert(y >= 0 && y < M);
+
+	return y + x * M;
 }
+
+/// No solid in the beginning.
+int* Solid = new int[M * N]{};
 
 /// \brief Grow in eight directions.
 ///
@@ -50,17 +49,19 @@ void grow()
 	Grow_Times += 1;
 	cout << "Grow Times: " << Grow_Times << endl;
 
-	int Solid_p[N][N];
-	for (int i = 0; i < N; i++)
-	{
+	int* Solid_p = new int[M * N]{};
+#pragma omp parallel for
+	for (int i = 0; i < M; i++)
 		for (int j = 0; j < N; j++)
 		{
-			Solid_p[i][j] = Solid[i][j];
+			int cell = CellIndex(i,j,M,N);
+			Solid_p[cell] = Solid[cell];
 		}
-	}
+			
 	cout << "Copy compeleted" << endl;
 
-	for (int i = 0; i < N; i++)
+/////// here
+	for (int i = 0; i < M; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
@@ -182,7 +183,7 @@ void grow()
 	cout << "One time grow compeleted" << endl;
 }
 
-void output2tecplot()
+void output2tecplot(const int Total_M, const int Total_N, int *S)
 {
 	string out_buffer = "";
 
@@ -195,12 +196,12 @@ void output2tecplot()
 
 	/// output solid position
 	outfile << "VARIABLES = \"X\", \"Y\", \"Z\",\"value\" " << endl;
-	outfile << "ZONE  t=\"solid\" I = " << N << ", J = " << N << ", K = " << 1 << ", F = point" << endl;
-	for (int i = 0; i < N; i++)
+	outfile << "ZONE  t=\"solid\" I = " << Total_M << ", J = " << Total_N << ", K = " << 1 << ", F = point" << endl;
+	for (int i = 0; i < Total_M; i++)
 	{
-		for (int j = 0; j < N; j++)
+		for (int j = 0; j < Total_N; j++)
 		{
-			out_buffer += std::to_string(i) + "," + std::to_string(j) + ", 0, " + std::to_string(Solid[i][j]) + "\n";
+			out_buffer += std::to_string(i) + "," + std::to_string(j) + ", 0, " + std::to_string(S[i][j]) + "\n";
 		}
 	}
 	outfile << out_buffer;
@@ -208,18 +209,18 @@ void output2tecplot()
 	cout << "Output completed" << endl;
 }
 
-void output2gnuplot()
+void output2gnuplot(const int Total_M, const int Total_N, int *S)
 {
 	string out_buffer = "";
 	ofstream outfile;
 	string filename = "porous.out";
 
 	outfile.open(filename);
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < Total_M; i++)
 	{
-		for (int j = 0; j < N; j++)
+		for (int j = 0; j < Total_N; j++)
 		{
-			out_buffer += std::to_string(Solid[i][j]) + " ";
+			out_buffer += std::to_string(S[i][j]) + " ";
 		}
 		out_buffer += "\n";
 	}
@@ -229,6 +230,22 @@ void output2gnuplot()
 
 	system("pause");
 }
+
+void offset(const int Total_M, const int Total_N, const int offset_x, const int offset_y, int *S)
+{
+	if (Total_M <= (offset_x + N) || Total_N <= (offset_y + N))
+	{
+		std::cout << "No need to offset purous aera." << endl;
+	}
+	else
+	{
+		for (int i = 0; i < N; i++)
+			for (int j = 0; j < N; j++)
+				if (Solid[i][j] == 1)	S[offset_x + i][offset_y + j] = 1;
+	}
+	
+}
+
 
 int main()
 {
@@ -275,8 +292,20 @@ int main()
 	} while (phi_p > phi);
 	cout << "Grow completed" << endl;
 
+	/// offset at a large area
+	const int Total_M = 500;
+	const int Total_N = 300;
+	const int offset_x = 100;
+	const int offset_y = 100;
+	int S[Total_M][Total_N];
+	offset(Total_M, Total_N, offset_x, offset_y, S);
+
 	/// Output result
-	output2tecplot();
+	// for tecplot 360
+	output2tecplot(Total_M, Total_N, S);
+
+	// for gnuplot
+	//output2gnuplot(Total_M, Total_N, S);
 
 	system("pause");
 
