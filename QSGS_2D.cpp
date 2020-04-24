@@ -26,8 +26,8 @@ int Grow_Times = 0;
 
 int CellIndex(int x, int y, const int M, const int N)
 {
-	assert(x >= 0 && x < N);
-	assert(y >= 0 && y < M);
+	assert(x >= 0 && x < M);
+	assert(y >= 0 && y < N);
 
 	return y + x * M;
 }
@@ -64,36 +64,36 @@ void grow()
 	{
 		for (int j = 0; j < N; j++)
 		{
-			const int cell = CellIndex(i,j);
+			const int cell = CellIndex(i,j,M,N);
 			if (i == 0)
 			{
 				if (j == 0)
 				{
 					if (Solid[cell] == 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d5) Solid_p[CellIndex(i+1,j+1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d5) Solid_p[CellIndex(i+1,j+1,M,N)] = 1;
 					}
 				}
 				else if (j == N - 1)
 				{
 					if (Solid[cell] == 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d8) Solid_p[CellIndex(i+1,j-1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d8) Solid_p[CellIndex(i+1,j-1,M,N)] = 1;
 					}
 				}
 				else
 				{
 					if (Solid[cell]== 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d5) Solid_p[CellIndex(i+1,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d8) Solid_p[CellIndex(i+1,j-1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d5) Solid_p[CellIndex(i+1,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d8) Solid_p[CellIndex(i+1,j-1,M,N)] = 1;
 					}
 				}
 			}
@@ -103,29 +103,29 @@ void grow()
 				{
 					if (Solid[cell] == 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d6) Solid_p[CellIndex(i-1,j+1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d6) Solid_p[CellIndex(i-1,j+1,M,N)] = 1;
 					}
 				}
 				else if (j == N - 1)
 				{
 					if (Solid[cell] == 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d7) Solid_p[CellIndex(i-1,j-1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d7) Solid_p[CellIndex(i-1,j-1,M,N)] = 1;
 					}
 				}
 				else
 				{
 					if (Solid[cell] == 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d6) Solid_p[CellIndex(i-1,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d7) Solid_p[CellIndex(i-1,j-1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d6) Solid_p[CellIndex(i-1,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d7) Solid_p[CellIndex(i-1,j-1,M,N)] = 1;
 					}
 				}
 			}
@@ -135,36 +135,36 @@ void grow()
 				{
 					if (Solid[cell] == 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d5) Solid_p[CellIndex(i+1,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d6) Solid_p[CellIndex(i-1,j+1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d5) Solid_p[CellIndex(i+1,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d6) Solid_p[CellIndex(i-1,j+1,M,N)] = 1;
 					}
 				}
 				else if (j == N - 1)
 				{
 					if (Solid[cell] == 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d7) Solid_p[CellIndex(i-1,j-1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d8) Solid_p[CellIndex(i+1,j-1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d7) Solid_p[CellIndex(i-1,j-1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d8) Solid_p[CellIndex(i+1,j-1,M,N)] = 1;
 					}
 				}
 				else
 				{
 					if (Solid[cell] == 1)
 					{
-						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d5) Solid_p[CellIndex(i+1,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d6) Solid_p[CellIndex(i-1,j+1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d7) Solid_p[CellIndex(i-1,j-1)] = 1;
-						if ((rand() / double(RAND_MAX)) < p_d8) Solid_p[CellIndex(i+1,j-1)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d1) Solid_p[CellIndex(i+1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d2) Solid_p[CellIndex(i,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d3) Solid_p[CellIndex(i-1,j,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d4) Solid_p[CellIndex(i,j-1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d5) Solid_p[CellIndex(i+1,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d6) Solid_p[CellIndex(i-1,j+1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d7) Solid_p[CellIndex(i-1,j-1,M,N)] = 1;
+						if ((rand() / double(RAND_MAX)) < p_d8) Solid_p[CellIndex(i+1,j-1,M,N)] = 1;
 					}
 				}
 			}
@@ -176,7 +176,7 @@ void grow()
 	for (int i = 0; i < M; i++)
 		for (int j = 0; j < N; j++)
 		{
-			const int cell = CellIndex(i,j);
+			const int cell = CellIndex(i,j,M,N);
 			int s_temp = Solid[cell] + Solid_p[cell];
 			if (s_temp > 0) Solid[cell] = 1;
 		}
@@ -198,12 +198,11 @@ void output2tecplot(const int Total_M, const int Total_N, int *S)
 	outfile << "VARIABLES = \"X\", \"Y\", \"Z\",\"value\" " << endl;
 	outfile << "ZONE  t=\"solid\" I = " << Total_M << ", J = " << Total_N << ", K = " << 1 << ", F = point" << endl;
 	for (int i = 0; i < Total_M; i++)
-	{
 		for (int j = 0; j < Total_N; j++)
 		{
-			out_buffer += std::to_string(i) + "," + std::to_string(j) + ", 0, " + std::to_string(S[i][j]) + "\n";
+			const int cell = CellIndex(i,j,Total_M, Total_N);
+			out_buffer += std::to_string(i) + "," + std::to_string(j) + ", 0, " + std::to_string(S[cell]) + "\n";
 		}
-	}
 	outfile << out_buffer;
 	outfile.close();
 	cout << "Output completed" << endl;
@@ -217,13 +216,12 @@ void output2gnuplot(const int Total_M, const int Total_N, int *S)
 
 	outfile.open(filename);
 	for (int i = 0; i < Total_M; i++)
-	{
 		for (int j = 0; j < Total_N; j++)
 		{
-			out_buffer += std::to_string(S[i][j]) + " ";
+			const int cell = CellIndex(i,j,Total_M, Total_N);
+			out_buffer += std::to_string(S[cell]) + " ";
 		}
 		out_buffer += "\n";
-	}
 	outfile << out_buffer;
 	outfile.close();
 	cout << "Output completed" << endl;
@@ -242,9 +240,12 @@ void offset(const int Total_M, const int Total_N, const int offset_x, const int 
 		#pragma omp parallel for
 		for (int i = 0; i < N; i++)
 			for (int j = 0; j < N; j++)
-				if (Solid[i][j] == 1)	S[offset_x + i][offset_y + j] = 1;
+			{
+				const int cell = CellIndex(i,j,M,N);
+				const int Total_cell = CellIndex(offset_x + i, offset_y + j, Total_M, Total_N);
+				if (Solid[cell] == 1)	S[Total_cell] = 1;
+			}	
 	}
-	
 }
 
 
@@ -272,8 +273,6 @@ int main()
 			}
 		}
 			
-
-
 	cout << "Generate growth core completed" << endl;
 
 	///  Generate process
@@ -290,7 +289,7 @@ int main()
 				const int cell =CellIndex(i,j);
 				t_temp += Solid[i][j];
 			}
-			
+
 		phi_p = 1 - t_temp / (N * N);
 		cout << phi_p << endl;
 
@@ -302,7 +301,7 @@ int main()
 	const int Total_N = 300;
 	const int offset_x = 100;
 	const int offset_y = 100;
-	int S[Total_M][Total_N];
+	int* S = new int[Total_M*Total_N]{};
 	offset(Total_M, Total_N, offset_x, offset_y, S);
 
 	/// Output result
