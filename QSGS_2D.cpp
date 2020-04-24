@@ -266,7 +266,7 @@ int main()
 	for (int i = 0; i < M; i++)
 		for (int j = 0; j < N; j++)
 		{
-			const int cell = CellIndex(i,j);
+			const int cell = CellIndex(i,j,M,N);
 			if ((rand() / double(RAND_MAX)) < p_cd)
 			{
 				Solid[cell] = 1;
@@ -286,8 +286,8 @@ int main()
 		for (int i = 0; i < N; i++)
 			for (int j = 0; j < N; j++)
 			{
-				const int cell =CellIndex(i,j);
-				t_temp += Solid[i][j];
+				const int cell =CellIndex(i,j,M,N);
+				t_temp += Solid[cell];
 			}
 
 		phi_p = 1 - t_temp / (N * N);
