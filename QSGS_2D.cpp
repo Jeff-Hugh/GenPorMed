@@ -295,10 +295,10 @@ int main()
 	cout << "Grow completed" << endl;
 
 	/// offset at a large area
-	const int Total_M = 8100;
-	const int Total_N = 4100;
-	const int offset_x = 2000;
-	const int offset_y = 2000;
+	const int Total_M = 500;
+	const int Total_N = 300;
+	const int offset_x = 100;
+	const int offset_y = 100;
 	int * S = new int[Total_M * Total_N]{};
 	offset(Total_M, Total_N, offset_x, offset_y, S, M, N, Solid);
 
