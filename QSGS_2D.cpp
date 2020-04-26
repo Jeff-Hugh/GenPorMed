@@ -11,29 +11,25 @@
 #include <time.h>
 #include <string>
 #include <fstream>
+#include <assert.h>
 
 using namespace std;
 
-const float phi = 0.6;			/// target porosity
 const float p_cd = 0.05;		/// core distribution probability
 const float z = 0.05, f = 0.0125;
 const float p_d1 = z, p_d2 = z, p_d3 = z, p_d4 = z;
 const float p_d5 = f, p_d6 = f, p_d7 = f, p_d8 = f;
 
-const int N = 300;
-const int M = 300;
 int Grow_Times = 0;
 
-int CellIndex(int x, int y, const int M, const int N)
+int CellIndex(int x, int y, const int MM, const int NN)
 {
-	assert(x >= 0 && x < M);
-	assert(y >= 0 && y < N);
+	assert(x >= 0 && x < MM);
+	assert(y >= 0 && y < NN);
 
-	return y + x * M;
+	return x + y * MM;
 }
 
-/// No solid in the beginning.
-int* Solid = new int[M * N]{};
 
 /// \brief Grow in eight directions.
 ///
@@ -44,7 +40,7 @@ int* Solid = new int[M * N]{};
 ///*****                  *****
 ///*****    7    4    8   *****
 ///
-void grow()
+void grow(const int M, const int N, int * Solid)
 {
 	Grow_Times += 1;
 	cout << "Grow Times: " << Grow_Times << endl;
@@ -183,36 +179,34 @@ void grow()
 	cout << "One time grow compeleted" << endl;
 }
 
-void output2tecplot(const int Total_M, const int Total_N, int *S)
+void output2tecplot(const int Total_M, const int Total_N, int *S, string filename)
 {
-	string out_buffer = "";
-
 	ofstream outfile;
-	string filename = "porous_2D.plt";
 	string title = "2D porous media";
 	outfile.open(filename);
 
 	outfile << "TITLE = \"" << title << "\"" << endl;
 
 	/// output solid position
-	outfile << "VARIABLES = \"X\", \"Y\", \"Z\",\"value\" " << endl;
-	outfile << "ZONE  t=\"solid\" I = " << Total_M << ", J = " << Total_N << ", K = " << 1 << ", F = point" << endl;
-	for (int i = 0; i < Total_M; i++)
-		for (int j = 0; j < Total_N; j++)
+	outfile << "VARIABLES = \"X\", \"Y\",\"value\" " << endl;
+	outfile << "ZONE  t = \"solid\" " << " I = " << Total_M << ", J = " << Total_N << " F = point" << endl;
+	outfile  << endl;
+
+	for (int j = 0; j < Total_N; j++)
+		for (int i = 0; i < Total_M; i++)
 		{
 			const int cell = CellIndex(i,j,Total_M, Total_N);
-			out_buffer += std::to_string(i) + "," + std::to_string(j) + ", 0, " + std::to_string(S[cell]) + "\n";
+			outfile <<  i << "," << j << ", " << S[cell] << endl;
 		}
-	outfile << out_buffer;
+	
 	outfile.close();
 	cout << "Output completed" << endl;
 }
 
-void output2gnuplot(const int Total_M, const int Total_N, int *S)
+void output2gnuplot(const int Total_M, const int Total_N, int *S, string filename)
 {
 	string out_buffer = "";
 	ofstream outfile;
-	string filename = "porous.out";
 
 	outfile.open(filename);
 	for (int i = 0; i < Total_M; i++)
@@ -225,25 +219,26 @@ void output2gnuplot(const int Total_M, const int Total_N, int *S)
 	outfile << out_buffer;
 	outfile.close();
 	cout << "Output completed" << endl;
-
-	system("pause");
 }
 
-void offset(const int Total_M, const int Total_N, const int offset_x, const int offset_y, int *S)
+void offset(const int Total_M, const int Total_N, const int offset_x, const int offset_y, int *S, const int M, const int N, int * Solid)
 {
-	if (Total_M <= (offset_x + N) || Total_N <= (offset_y + N))
+	if (Total_M <= (offset_x + M) || Total_N <= (offset_y + N))
 	{
 		std::cout << "No need to offset purous aera." << endl;
 	}
 	else
 	{
 		#pragma omp parallel for
-		for (int i = 0; i < N; i++)
+		for (int i = 0; i < M; i++)
 			for (int j = 0; j < N; j++)
 			{
 				const int cell = CellIndex(i,j,M,N);
 				const int Total_cell = CellIndex(offset_x + i, offset_y + j, Total_M, Total_N);
-				if (Solid[cell] == 1)	S[Total_cell] = 1;
+				if (Solid[cell] == 1)
+					S[Total_cell] = 1;
+				else
+					S[Total_cell] = 0;
 			}	
 	}
 }
@@ -251,15 +246,17 @@ void offset(const int Total_M, const int Total_N, const int offset_x, const int 
 
 int main()
 {
+	const int M = 100;
+	const int N = 100;
+	const float phi = 0.7;			/// target porosity
 	float phi_p;
+
+	/// initialize to 0, all fluid
+	int* Solid = new int[M * N]{};
 
 	/// Generate random seed
 	srand((unsigned)time(NULL));
 	cout << "Generate random seed completed" <<endl;
-
-	/// Initialization
-	init();
-	cout << "Initialization completed" << endl;
 
 	/// Generate growth core
 	#pragma omp paralle for
@@ -278,7 +275,7 @@ int main()
 	///  Generate process
 	do
 	{
-		grow();
+		grow(M, N, Solid);
 
 		/// Calculate porosity
 		float t_temp = 0;
@@ -286,7 +283,7 @@ int main()
 		for (int i = 0; i < N; i++)
 			for (int j = 0; j < N; j++)
 			{
-				const int cell =CellIndex(i,j,M,N);
+				const int cell = CellIndex(i,j,M,N);
 				t_temp += Solid[cell];
 			}
 
@@ -297,21 +294,22 @@ int main()
 	cout << "Grow completed" << endl;
 
 	/// offset at a large area
-	const int Total_M = 500;
-	const int Total_N = 300;
-	const int offset_x = 100;
-	const int offset_y = 100;
-	int* S = new int[Total_M*Total_N]{};
-	offset(Total_M, Total_N, offset_x, offset_y, S);
+	const int Total_M = 8100;
+	const int Total_N = 4100;
+	const int offset_x = 2000;
+	const int offset_y = 2000;
+	int * S = new int[Total_M * Total_N]{};
+	offset(Total_M, Total_N, offset_x, offset_y, S, M, N, Solid);
 
 	/// Output result
 	// for tecplot 360
-	output2tecplot(Total_M, Total_N, S);
+	output2tecplot(Total_M, Total_N, S, "offset_porous_2D.plt");
+	output2tecplot(M, N, Solid, "porous_2D.plt");
 
 	// for gnuplot
 	//output2gnuplot(Total_M, Total_N, S);
 
-	system("pause");
-
+	delete[] S;
+	delete[] Solid;
 	return 0;
 }
