@@ -12,6 +12,7 @@
 #include <string>
 #include <fstream>
 #include <assert.h>
+#include <omp.h>
 
 using namespace std;
 
