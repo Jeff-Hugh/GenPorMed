@@ -16,7 +16,6 @@ class Porous2D
         Porous2D(int nx, int ny, double por, double p, double p_z, double p_f);
 		~Porous2D();
 
-		void generation_old(int* s);
 		void generation(int* s);
         void output2tecplot(const int Total_M, const int Total_N, int* S, std::string filename);
 		void output2png(const int Total_M, const int Total_N, int* S, std::string filename);
@@ -40,7 +39,6 @@ class Porous2D
         int * Solid;      /// the return value
         int Grow_Times;         /// for iteration
 
-        void grow();
 		void grow_alone();
 		void grow_d1(int i, int j, int* s, int CoreID);
 		void grow_d2(int i, int j, int* s, int CoreID);
