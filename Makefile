@@ -6,12 +6,12 @@ obj = $(src:%.cpp=%.o)
 
 
 $(prom):$(obj)
-    $(cc) -fopenmp -o $(prom) $(obj)
+	$(cc) -fopenmp -lboost_system -lboost_iostreams -o $(prom) $(obj)
 
 
 %.o:%.cpp $(deps)
-    $(cc) -std=c++11 -fopenmp -c $< -o $@
+	$(cc) -std=c++11 -fopenmp -c $< -o $@
 
 
 clean:
-    rm -rf $(obj) $(prom)
+	rm -rf $(obj) $(prom)
