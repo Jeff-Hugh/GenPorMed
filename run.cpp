@@ -4,13 +4,8 @@
 /// https://doi.org/10.1103/PhysRevE.75.036702
 /// 
 
-#include <string>
 #include <time.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-#include <assert.h>
 
 #include "Porous2D.h"
 
