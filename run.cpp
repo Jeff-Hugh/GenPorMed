@@ -23,8 +23,8 @@ int main()
 
 	const int M = 200;
 	const int N = 200;
-	const double phi = 0.3;			/// target porosity
-	const double p_cd = 0.02;		/// core distribution probability
+	const double phi = 0.5;			/// target porosity
+	const double p_cd = 0.01;		/// core distribution probability
 	const double z = 0.05;     /// Probability in orthogonal direction
 	const double f = 0.0125;   /// Probability in oblique direction
 	int* s = new int[M * N]{ 0 };
