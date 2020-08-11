@@ -144,7 +144,7 @@ void Porous2D::grow_alone()
 					{
 						grow_d1(i, j, Solid_p, Solid[cell]);
 						grow_d2(i, j, Solid_p, Solid[cell]);
-						// grow_d5(i, j, Solid_p);
+						grow_d5(i, j, Solid_p, Solid[cell]);
 					}
 				}
 				else if (j == this->NY - 1)
@@ -153,7 +153,7 @@ void Porous2D::grow_alone()
 					{
 						grow_d1(i, j, Solid_p, Solid[cell]);
 						grow_d4(i, j, Solid_p, Solid[cell]);
-						//grow_d8(i, j, Solid_p);
+						grow_d8(i, j, Solid_p, Solid[cell]);
 					}
 				}
 				else
@@ -163,8 +163,8 @@ void Porous2D::grow_alone()
 						grow_d1(i, j, Solid_p, Solid[cell]);
 						grow_d2(i, j, Solid_p, Solid[cell]);
 						grow_d4(i, j, Solid_p, Solid[cell]);
-						//grow_d5(i, j, Solid_p);
-						//grow_d8(i, j, Solid_p);
+						grow_d5(i, j, Solid_p, Solid[cell]);
+						grow_d8(i, j, Solid_p, Solid[cell]);
 					}
 				}
 			}
@@ -176,7 +176,7 @@ void Porous2D::grow_alone()
 					{
 						grow_d2(i, j, Solid_p, Solid[cell]);
 						grow_d3(i, j, Solid_p, Solid[cell]);
-						//grow_d6(i, j, Solid_p);
+						grow_d6(i, j, Solid_p, Solid[cell]);
 					}
 				}
 				else if (j == this->NY - 1)
@@ -185,7 +185,7 @@ void Porous2D::grow_alone()
 					{
 						grow_d3(i, j, Solid_p, Solid[cell]);
 						grow_d4(i, j, Solid_p, Solid[cell]);
-						//grow_d7(i, j, Solid_p);
+						grow_d7(i, j, Solid_p, Solid[cell]);
 					}
 				}
 				else
@@ -195,8 +195,8 @@ void Porous2D::grow_alone()
 						grow_d2(i, j, Solid_p, Solid[cell]);
 						grow_d3(i, j, Solid_p, Solid[cell]);
 						grow_d4(i, j, Solid_p, Solid[cell]);
-						//grow_d6(i, j, Solid_p);
-						//grow_d7(i, j, Solid_p);
+						grow_d6(i, j, Solid_p, Solid[cell]);
+						grow_d7(i, j, Solid_p, Solid[cell]);
 					}
 				}
 			}
@@ -209,8 +209,8 @@ void Porous2D::grow_alone()
 						grow_d1(i, j, Solid_p, Solid[cell]);
 						grow_d2(i, j, Solid_p, Solid[cell]);
 						grow_d3(i, j, Solid_p, Solid[cell]);
-						//grow_d5(i, j, Solid_p);
-						//grow_d6(i, j, Solid_p);
+						grow_d5(i, j, Solid_p, Solid[cell]);
+						grow_d6(i, j, Solid_p, Solid[cell]);
 					}
 				}
 				else if (j == this->NY - 1)
@@ -220,8 +220,8 @@ void Porous2D::grow_alone()
 						grow_d1(i, j, Solid_p, Solid[cell]);
 						grow_d3(i, j, Solid_p, Solid[cell]);
 						grow_d4(i, j, Solid_p, Solid[cell]);
-						//grow_d7(i, j, Solid_p);
-						//grow_d8(i, j, Solid_p);
+						grow_d7(i, j, Solid_p, Solid[cell]);
+						grow_d8(i, j, Solid_p, Solid[cell]);
 					}
 				}
 				else
@@ -232,10 +232,10 @@ void Porous2D::grow_alone()
 						grow_d2(i, j, Solid_p, Solid[cell]);
 						grow_d3(i, j, Solid_p, Solid[cell]);
 						grow_d4(i, j, Solid_p, Solid[cell]);
-						//grow_d5(i, j, Solid_p);
-						//grow_d6(i, j, Solid_p);
-						//grow_d7(i, j, Solid_p);
-						//grow_d8(i, j, Solid_p);
+						grow_d5(i, j, Solid_p, Solid[cell]);
+						grow_d6(i, j, Solid_p, Solid[cell]);
+						grow_d7(i, j, Solid_p, Solid[cell]);
+						grow_d8(i, j, Solid_p, Solid[cell]);
 					}
 				}
 			}
@@ -748,11 +748,50 @@ void Porous2D::grow_d5(int i, int j, int* s, int CoreID)
 {
 	if (((rand() / double(RAND_MAX)) < p_d5) && (j + 1 < this->NY) && (i + 1 < this->NX))
 	{
-		if ( (j + 2 == this->NY) || (i + 2 == this->NX) )
-			s[this->CellIndex(i + 1, j + 1, this->NX, this->NY)] = 1;
-		else
-			if (s[this->CellIndex(i + 2, j + 2, this->NX, this->NY)] == 0)
-				s[this->CellIndex(i + 1, j + 1, this->NX, this->NY)] = 1;
+		if (s[CellIndex(i + 1, j + 1, NX, NY)] == 0)
+		{
+			if ((i + 1 == NX - 1) && (j + 1 == NY - 1))
+				// if it is next to the boundary, set to solid 
+				s[CellIndex(i + 1, j + 1, NX, NY)] = CoreID;
+			else
+			{
+				// check if exist solid that do not equal to CoreID around the cell(i+1, j)
+				if ((j + 1 == NY - 1) && (i + 1 < NX - 1))
+				{
+					if ((s[CellIndex(i, j + 1, NX, NY)] > 0) && (s[CellIndex(i, j + 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j, NX, NY)] > 0) && (s[CellIndex(i + 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j, NX, NY)] > 0) && (s[CellIndex(i + 2, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j + 1, NX, NY)] > 0) && (s[CellIndex(i + 2, j + 1, NX, NY)] != CoreID))
+						s[CellIndex(i + 1, j + 1, NX, NY)]  = 0;
+					else
+						s[CellIndex(i + 1, j + 1, NX, NY)]  = CoreID;
+					
+				}
+				else if ((j + 1 < NY - 1) && (i + 1 == NX - 1))
+				{
+					if ((s[CellIndex(i, j + 1, NX, NY)] > 0) && (s[CellIndex(i, j + 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j, NX, NY)] > 0) && (s[CellIndex(i + 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i, j + 2, NX, NY)] > 0) && (s[CellIndex(i, j + 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j + 2, NX, NY)] > 0) && (s[CellIndex(i + 1, j + 2, NX, NY)] != CoreID))
+						s[CellIndex(i + 1, j + 1, NX, NY)]  = 0;
+					else
+						s[CellIndex(i + 1, j + 1, NX, NY)]  = CoreID;
+				}
+				else
+				{
+					if ((s[CellIndex(i, j + 1, NX, NY)] > 0) && (s[CellIndex(i, j + 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j, NX, NY)] > 0) && (s[CellIndex(i + 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j, NX, NY)] > 0) && (s[CellIndex(i + 2, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j + 1, NX, NY)] > 0) && (s[CellIndex(i + 2, j + 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i, j + 2, NX, NY)] > 0) && (s[CellIndex(i, j + 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j + 2, NX, NY)] > 0) && (s[CellIndex(i + 1, j + 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j + 2, NX, NY)] > 0) && (s[CellIndex(i + 2, j + 2, NX, NY)] != CoreID) )
+						s[CellIndex(i + 1, j + 1, NX, NY)]  = 0;
+					else
+						s[CellIndex(i + 1, j + 1, NX, NY)]  = CoreID;
+				}
+			}	
+		}
 	}
 }
 
@@ -760,11 +799,50 @@ void Porous2D::grow_d6(int i, int j, int* s, int CoreID)
 {
 	if (((rand() / double(RAND_MAX)) < p_d6) && (j + 1 < this->NY) && (i > 0))
 	{
-		if ((j + 2 == this->NY) || (i == 1))
-			s[this->CellIndex(i - 1, j + 1, this->NX, this->NY)] = 1;
-		else
-			if (s[this->CellIndex(i - 2, j + 2, this->NX, this->NY)] == 0)
-				s[this->CellIndex(i - 1, j + 1, this->NX, this->NY)] = 1;
+		if (s[CellIndex(i - 1, j + 1, NX, NY)] == 0)
+		{
+			if ((i - 1 == 0) && (j + 1 == NY - 1))
+				// if it is next to the boundary, set to solid 
+				s[CellIndex(i - 1, j + 1, NX, NY)] = CoreID;
+			else
+			{
+				// check if exist solid that do not equal to CoreID around the cell(i+1, j)
+				if ((j + 1 == NY - 1) && (i - 1 > 0)) 
+				{
+					if ((s[CellIndex(i, j + 1, NX, NY)] > 0) && (s[CellIndex(i, j + 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j, NX, NY)] > 0) && (s[CellIndex(i - 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 2, j, NX, NY)] > 0) && (s[CellIndex(i - 2, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 2, j + 1, NX, NY)] > 0) && (s[CellIndex(i - 2, j + 1, NX, NY)] != CoreID))
+						s[CellIndex(i - 1, j + 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i - 1, j + 1, NX, NY)] = CoreID;
+					
+				}
+				else if ((j + 1 < NY - 1) && (i == 1))
+				{
+					if ((s[CellIndex(i, j + 1, NX, NY)] > 0) && (s[CellIndex(i, j + 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j, NX, NY)] > 0) && (s[CellIndex(i - 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i, j + 2, NX, NY)] > 0) && (s[CellIndex(i, j + 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j + 2, NX, NY)] > 0) && (s[CellIndex(i - 1, j + 2, NX, NY)] != CoreID))
+						s[CellIndex(i - 1, j + 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i - 1, j + 1, NX, NY)] = CoreID;
+				}
+				else
+				{
+					if ((s[CellIndex(i, j + 1, NX, NY)] > 0) && (s[CellIndex(i, j + 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j, NX, NY)] > 0) && (s[CellIndex(i - 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 2, j, NX, NY)] > 0) && (s[CellIndex(i - 2, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 2, j + 1, NX, NY)] > 0) && (s[CellIndex(i - 2, j + 1, NX, NY)] != CoreID) 
+						|| (s[CellIndex(i, j + 2, NX, NY)] > 0) && (s[CellIndex(i, j + 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j + 2, NX, NY)] > 0) && (s[CellIndex(i - 1, j + 2, NX, NY)] != CoreID) 
+						|| (s[CellIndex(i - 2, j + 2, NX, NY)] > 0) && (s[CellIndex(i - 2, j + 2, NX, NY)] != CoreID))
+						s[CellIndex(i - 1, j + 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i - 1, j + 1, NX, NY)] = CoreID;
+				}
+			}	
+		}
 	}
 }
 
@@ -772,11 +850,50 @@ void Porous2D::grow_d7(int i, int j, int* s, int CoreID)
 {
 	if (((rand() / double(RAND_MAX)) < p_d7) && (j > 0) && (i > 0))
 	{
-		if ((j == 1) || (i == 1))
-			s[this->CellIndex(i - 1, j - 1, this->NX, this->NY)] = 1;
-		else
-			if (s[this->CellIndex(i - 2, j - 2, this->NX, this->NY)] == 0)
-				s[this->CellIndex(i - 1, j - 1, this->NX, this->NY)] = 1;
+		if (s[CellIndex(i - 1, j - 1, NX, NY)] == 0)
+		{
+			if ((i - 1 == 0) && (j - 1 == 0))
+				// if it is next to the boundary, set to solid 
+				s[CellIndex(i - 1, j - 1, NX, NY)] = CoreID;
+			else
+			{
+				// check if exist solid that do not equal to CoreID around the cell(i+1, j)
+				if ((j - 1 == 0) && (i - 1 > 0)) 
+				{
+					if ((s[CellIndex(i, j - 1, NX, NY)] > 0) && (s[CellIndex(i, j - 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j, NX, NY)] > 0) && (s[CellIndex(i - 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 2, j, NX, NY)] > 0) && (s[CellIndex(i - 2, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 2, j - 1, NX, NY)] > 0) && (s[CellIndex(i - 2, j - 1, NX, NY)] != CoreID))
+						s[CellIndex(i - 1, j - 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i - 1, j - 1, NX, NY)] = CoreID;
+					
+				}
+				else if ((j - 1 > 0) && (i == 1))
+				{
+					if ((s[CellIndex(i, j - 1, NX, NY)] > 0) && (s[CellIndex(i, j - 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j, NX, NY)] > 0) && (s[CellIndex(i - 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i, j - 2, NX, NY)] > 0) && (s[CellIndex(i, j - 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j - 2, NX, NY)] > 0) && (s[CellIndex(i - 1, j - 2, NX, NY)] != CoreID))
+						s[CellIndex(i - 1, j - 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i - 1, j - 1, NX, NY)] = CoreID;
+				}
+				else
+				{
+					if ((s[CellIndex(i, j - 1, NX, NY)] > 0) && (s[CellIndex(i, j - 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j, NX, NY)] > 0) && (s[CellIndex(i - 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 2, j, NX, NY)] > 0) && (s[CellIndex(i - 2, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 2, j - 1, NX, NY)] > 0) && (s[CellIndex(i - 2, j - 1, NX, NY)] != CoreID) 
+						|| (s[CellIndex(i, j - 2, NX, NY)] > 0) && (s[CellIndex(i, j - 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i - 1, j - 2, NX, NY)] > 0) && (s[CellIndex(i - 1, j - 2, NX, NY)] != CoreID) 
+						|| (s[CellIndex(i - 2, j - 2, NX, NY)] > 0) && (s[CellIndex(i - 2, j - 2, NX, NY)] != CoreID))
+						s[CellIndex(i - 1, j - 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i - 1, j - 1, NX, NY)] = CoreID;
+				}
+			}	
+		}
 	}
 }
 
@@ -784,11 +901,50 @@ void Porous2D::grow_d8(int i, int j, int* s, int CoreID)
 {
 	if (((rand() / double(RAND_MAX)) < p_d8) && (j > 0) && (i + 1 < this->NX))
 	{
-		if ((j == 1) || (i + 2 == this->NX))
-			s[this->CellIndex(i + 1, j - 1, this->NX, this->NY)] = 1;
-		else
-			if (s[this->CellIndex(i + 2, j - 2, this->NX, this->NY)] == 0)
-				s[this->CellIndex(i + 1, j - 1, this->NX, this->NY)] = 1;
+		if (s[CellIndex(i + 1, j - 1, NX, NY)] == 0)
+		{
+			if ((i + 1 == NX - 1) && (j - 1 == 0))
+				// if it is next to the boundary, set to solid 
+				s[CellIndex(i + 1, j - 1, NX, NY)] = CoreID;
+			else
+			{
+				// check if exist solid that do not equal to CoreID around the cell(i+1, j)
+				if ((j - 1 == 0) && (i + 1 < NX - 1)) 
+				{
+					if ((s[CellIndex(i, j - 1, NX, NY)] > 0) && (s[CellIndex(i, j - 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j, NX, NY)] > 0) && (s[CellIndex(i + 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j, NX, NY)] > 0) && (s[CellIndex(i + 2, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j - 1, NX, NY)] > 0) && (s[CellIndex(i + 2, j - 1, NX, NY)] != CoreID))
+						s[CellIndex(i + 1, j - 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i + 1, j - 1, NX, NY)] = CoreID;
+					
+				}
+				else if ((j - 1 > 0) && (i + 1 == NX - 1))
+				{
+					if ((s[CellIndex(i, j - 1, NX, NY)] > 0) && (s[CellIndex(i, j - 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j, NX, NY)] > 0) && (s[CellIndex(i + 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i, j - 2, NX, NY)] > 0) && (s[CellIndex(i, j - 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j - 2, NX, NY)] > 0) && (s[CellIndex(i + 1, j - 2, NX, NY)] != CoreID))
+						s[CellIndex(i + 1, j - 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i + 1, j - 1, NX, NY)] = CoreID;
+				}
+				else
+				{
+					if ((s[CellIndex(i, j - 1, NX, NY)] > 0) && (s[CellIndex(i, j - 1, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j, NX, NY)] > 0) && (s[CellIndex(i + 1, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j, NX, NY)] > 0) && (s[CellIndex(i + 2, j, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 2, j - 1, NX, NY)] > 0) && (s[CellIndex(i + 2, j - 1, NX, NY)] != CoreID) 
+						|| (s[CellIndex(i, j - 2, NX, NY)] > 0) && (s[CellIndex(i, j - 2, NX, NY)] != CoreID)
+						|| (s[CellIndex(i + 1, j - 2, NX, NY)] > 0) && (s[CellIndex(i + 1, j - 2, NX, NY)] != CoreID) 
+						|| (s[CellIndex(i + 2, j - 2, NX, NY)] > 0) && (s[CellIndex(i + 2, j - 2, NX, NY)] != CoreID))
+						s[CellIndex(i + 1, j - 1, NX, NY)] = 0;
+					else
+						s[CellIndex(i + 1, j - 1, NX, NY)] = CoreID;
+				}
+			}	
+		}
 	}
 }
 
