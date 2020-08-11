@@ -11,48 +11,12 @@
 
 using namespace std;
 
-bool Porous3D::is_interior(const int i, const int j, const int k)
+Porous3D::Porous3D(int nx, int ny, int nz, double por = 0.6, double p = 0.05,
+	double p_s = 0.2, double p_e = 0.0167, double p_p = 0.0021):NX(nx), NY(ny), NZ(nz), phi(por), p_cd(p), p_surface(p_s), p_edge(p_e), p_point(p_p)
 {
-	const int cell = CellIndex(i, j, k);
-	if (this->Solid[cell] == 1)
-	{
-		int sum_i = 0;
-		for (int x = -1; x <= 1; x++)
-			for (int y = -1; y <= 1; y++)
-				for (int z = -1; z <= 1; z++)
-				{
-					if (!((i + x) < 0 || (j + y) < 0 || (k + z) < 0 || 
-						(i + x) > this->NX - 1 || (j + y) > this->NY - 1 || 
-						(k + z) > this->NZ - 1))
-					{
-						const int cell_n = CellIndex(i + x, j + y, k + z);
-						sum_i =+ this->Solid[cell_n];
-						if (this->Solid[cell_n] == 0) return false;
-					}
-					else
-					{
-						sum_i = +1;
-					}
-
-				}
-
-		if (sum_i == 27)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
 }
 
-Porous3D::Porous3D(int nx, int ny, int nz, int *s, double por = 0.6, double p = 0.05,
-	double p_s = 0.2, double p_e = 0.0167, double p_p = 0.0021):NX(nx), NY(ny), NZ(nz), phi(por), p_cd(p), p_surface(p_s), p_edge(p_e), p_point(p_p)
+void Porous3D::Generation(int* s)
 {
 	double phi_p;
 	/// Generate random seed
@@ -61,13 +25,16 @@ Porous3D::Porous3D(int nx, int ny, int nz, int *s, double por = 0.6, double p = 
 	/// Initialization
 	this->Solid = new int[NX*NY*NZ]{};
 
+	// every core has different id
+	int core_id = 1;
+
 	/// Generate growth core
 	for (int i = 0; i < this->NX; i++)
 		for (int j = 0; j < this->NY; j++)
 			for (int k = 0; k < this->NZ; k++)
 			{
 				const int cell = CellIndex(i, j, k);
-				if ((rand() / double(RAND_MAX)) < p_cd) this->Solid[cell] = 1;
+				if (((rand() / double(RAND_MAX)) < p_cd) && (NearSolid(i,j,k) == 0)) this->Solid[cell] = core_id++;
 			}
 				
 	///  Generate process
@@ -76,39 +43,29 @@ Porous3D::Porous3D(int nx, int ny, int nz, int *s, double por = 0.6, double p = 
 	{
 		grow();
 		
-		if (Grow_Times % 5 == 0)
-		{
-			bool FixSmooth = false;
-			do
-			{
-				FixSmooth = fixhole();
-			} while (!FixSmooth);
-		}
-
-		if (Grow_Times % 5 == 0)
-		{
-			bool FixSmooth = false;
-			do
-			{
-				FixSmooth = smooth();
-			} while (!FixSmooth);
-		}
-
 		/// Calculate porosity
 		phi_p = CalcPor();
 		//std:: cout << "Porosity: " << phi_p << endl;
 	} while (phi_p > phi);
 
-# pragma omp parallel for
-	for (int i = 0; i < this->NX; i++)
-		for (int j = 0; j < this->NY; j++)
-			for (int k = 0; k < this->NZ; k++)
-			{
-				const int cell = CellIndex(i, j, k);
-				s[cell] = this->Solid[cell];
-			}
-			
+// delete CoreID
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY; i++)
+	{
+		if (Solid[i] >= 1) Solid[i] = 1;
+	}
+
+	DeleteDeadZone();
+	phi_p = CalcPor();
+
+	phi = phi_p;
 	std::cout << "Grow completed, Porosity: " << phi_p << endl;
+
+	//copy Solid (inner) to s (outsider)
+# pragma omp parallel for
+	for (int i = 0; i < NX*NY*NZ; i++) s[i] = Solid[i];
+		
+	delete[] this->Solid;
 }
 
 void Porous3D::grow()
@@ -118,13 +75,9 @@ void Porous3D::grow()
 
 	int* Solid_p = new int[NX * NY * NZ]{};
 # pragma omp parallel for
-	for (int i = 0; i < this->NX; i++)
-		for (int j = 0; j < this->NY; j++)
-			for (int k = 0; k < this->NZ; k++)
-			{
-				const int cell = CellIndex(i, j, k);
-				Solid_p[cell] = Solid[cell];
-			}
+	for (int i = 0; i < NX * NY * NZ; i++)
+		Solid_p[i] = Solid[i];
+			
 	// cout << "Copy compeleted" << endl;
 
 # pragma omp parallel for 
@@ -229,16 +182,6 @@ double Porous3D::CalcPor()
 	return (1 - t_temp / (NX * NY * NZ));
 }
 
-bool Porous3D::fixhole()
-{
-	return true;
-}
-
-bool Porous3D::smooth()
-{
-	return true;
-}
-
 int Porous3D::CellIndex(int x, int y, int z)
 {
 	assert(x >= 0 && x < NX);
@@ -267,4 +210,156 @@ int Porous3D::NearSolid(int i, int j, int k)
 Porous3D::~Porous3D()
 {
 	
+}
+
+/// 0: fluid
+/// 1: solid
+/// 2: infected lattice
+void Porous3D::InfectFluid(int i, int j, int k)
+{
+	for (int x = -1; x <= 1; x++)
+		for (int y = -1; y <= 1; y++)
+			for (int z = -1; z <= 1; z++)
+			{
+				if (!((i + x) < 0 || (j + y) < 0 || (k + z) < 0 || (i + x) > this->NX - 1 || (j + y) > this->NY - 1 || (k + z) > this->NZ - 1))
+				{
+					int cell = CellIndex(i + x, j + y, k + z);
+					if (Solid[cell] == 0)
+					{
+						Solid[cell] = 2;
+						InfectFluid(i + x, j + y, k + z);
+					}
+				}
+			}
+}
+
+void Porous3D::DeleteDeadZone()
+{
+	/// infect fluid lattice from surface z = 0
+	/// marked 2 as infected lattice
+	/// 0: fluid
+	/// 1: solid
+	for (int i = 0; i < NX; i++)
+		for (int j = 0; j < NY; j++)
+		{
+			int idx = CellIndex(i, j, 0);
+			if (Solid[idx] == 0) Solid[idx] = 2;
+			InfectFluid(i, j, 0);
+		}
+
+	/// modify fluid lattice in dead zone to solid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 0) Solid[i] = 1;
+	/// modify infected lattice to fluid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 2) Solid[i] = 0;
+
+
+	/// infect fluid lattice from surface z = NZ - 1
+	/// marked 2 as infected lattice
+	/// 0: fluid
+	/// 1: solid
+	for (int i = 0; i < NX; i++)
+		for (int j = 0; j < NY; j++)
+		{
+			int idx = CellIndex(i, j, NZ - 1);
+			if (Solid[idx] == 0) Solid[idx] = 2;
+			InfectFluid(i, j, NZ - 1);
+		}
+
+	/// modify fluid lattice in dead zone to solid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 0) Solid[i] = 1;
+	/// modify infected lattice to fluid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 2) Solid[i] = 0;
+
+	
+	/// infect fluid lattice from surface y = 0
+	/// marked 2 as infected lattice
+	/// 0: fluid
+	/// 1: solid
+	for (int i = 0; i < NX; i++)
+		for (int k = 0; k < NZ; k++)
+		{
+			int idx = CellIndex(i, 0, k);
+			if (Solid[idx] == 0) Solid[idx] = 2;
+			InfectFluid(i, 0, k);
+		}
+
+	/// modify fluid lattice in dead zone to solid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 0) Solid[i] = 1;
+	/// modify infected lattice to fluid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 2) Solid[i] = 0;
+
+	/// infect fluid lattice from surface y = NY - 1
+	/// marked 2 as infected lattice
+	/// 0: fluid
+	/// 1: solid
+	for (int i = 0; i < NX; i++)
+		for (int k = 0; k < NZ; k++)
+		{
+			int idx = CellIndex(i, NY - 1, k);
+			if (Solid[idx] == 0) Solid[idx] = 2;
+			InfectFluid(i, NY - 1, k);
+		}
+
+	/// modify fluid lattice in dead zone to solid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 0) Solid[i] = 1;
+	/// modify infected lattice to fluid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 2) Solid[i] = 0;
+
+	/// infect fluid lattice from surface x = 0
+	/// marked 2 as infected lattice
+	/// 0: fluid
+	/// 1: solid
+	for (int j = 0; j < NY; j++)
+		for (int k = 0; k < NZ; k++)
+		{
+			int idx = CellIndex(0, j, k);
+			if (Solid[idx] == 0) Solid[idx] = 2;
+			InfectFluid(0, j, k);
+		}
+
+	/// modify fluid lattice in dead zone to solid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 0) Solid[i] = 1;
+	/// modify infected lattice to fluid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 2) Solid[i] = 0;
+
+	/// infect fluid lattice from surface x = NX - 1
+	/// marked 2 as infected lattice
+	/// 0: fluid
+	/// 1: solid
+	for (int j = 0; j < NY; j++)
+		for (int k = 0; k < NZ; k++)
+		{
+			int idx = CellIndex(NX - 1, j, k);
+			if (Solid[idx] == 0) Solid[idx] = 2;
+			InfectFluid(NX - 1, j, k);
+		}
+
+	/// modify fluid lattice in dead zone to solid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 0) Solid[i] = 1;
+	/// modify infected lattice to fluid lattice
+#pragma omp parallel for
+	for (int i = 0; i < NX * NY * NZ; i++)
+		if (Solid[i] == 2) Solid[i] = 0;
 }
