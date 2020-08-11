@@ -28,7 +28,7 @@ Porous2D::Porous2D(int nx, int ny, double por = 0.5, double p = 0.05, double p_z
 {
 }
 
-void Porous2D::generation(int* s)
+void Porous2D::Generation(int* s)
 {
 	double phi_p;
 	/// Generate random seed
@@ -1019,6 +1019,9 @@ void Porous2D::DeleteDeadZone()
 		if (Solid[i] == 2) Solid[i] = 0;
 }
 
+/// 0: fluid
+/// 1: solid
+/// 2: infected lattice
 void Porous2D::InfectFluid(int i, int j)
 {
 	if (i == 0)
