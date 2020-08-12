@@ -123,12 +123,6 @@ void Porous2D::grow_alone()
 	this->Grow_Times += 1;
 	//std::cout << "Grow Times: " << this->Grow_Times << endl;
 
-	int* Solid_p = new int[this->NX * this->NY]{};
-
-	// copy last Solid to Solid_p
-#pragma omp parallel for
-	for (int i = 0; i < NX * NY; i++) Solid_p[i] = Solid[i];
-
 	// grow
 	for (int i = 0; i < this->NX; i++)
 	{
@@ -142,29 +136,29 @@ void Porous2D::grow_alone()
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d1(i, j, Solid_p, Solid[cell]);
-						grow_d2(i, j, Solid_p, Solid[cell]);
-						grow_d5(i, j, Solid_p, Solid[cell]);
+						grow_d1(i, j, Solid, Solid[cell]);
+						grow_d2(i, j, Solid, Solid[cell]);
+						//grow_d5(i, j, Solid, Solid[cell]);
 					}
 				}
 				else if (j == this->NY - 1)
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d1(i, j, Solid_p, Solid[cell]);
-						grow_d4(i, j, Solid_p, Solid[cell]);
-						grow_d8(i, j, Solid_p, Solid[cell]);
+						grow_d1(i, j, Solid, Solid[cell]);
+						grow_d4(i, j, Solid, Solid[cell]);
+						//grow_d8(i, j, Solid, Solid[cell]);
 					}
 				}
 				else
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d1(i, j, Solid_p, Solid[cell]);
-						grow_d2(i, j, Solid_p, Solid[cell]);
-						grow_d4(i, j, Solid_p, Solid[cell]);
-						grow_d5(i, j, Solid_p, Solid[cell]);
-						grow_d8(i, j, Solid_p, Solid[cell]);
+						grow_d1(i, j, Solid, Solid[cell]);
+						grow_d2(i, j, Solid, Solid[cell]);
+						grow_d4(i, j, Solid, Solid[cell]);
+						//grow_d5(i, j, Solid, Solid[cell]);
+						//grow_d8(i, j, Solid, Solid[cell]);
 					}
 				}
 			}
@@ -174,29 +168,29 @@ void Porous2D::grow_alone()
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d2(i, j, Solid_p, Solid[cell]);
-						grow_d3(i, j, Solid_p, Solid[cell]);
-						grow_d6(i, j, Solid_p, Solid[cell]);
+						grow_d2(i, j, Solid, Solid[cell]);
+						grow_d3(i, j, Solid, Solid[cell]);
+						//grow_d6(i, j, Solid, Solid[cell]);
 					}
 				}
 				else if (j == this->NY - 1)
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d3(i, j, Solid_p, Solid[cell]);
-						grow_d4(i, j, Solid_p, Solid[cell]);
-						grow_d7(i, j, Solid_p, Solid[cell]);
+						grow_d3(i, j, Solid, Solid[cell]);
+						grow_d4(i, j, Solid, Solid[cell]);
+						//grow_d7(i, j, Solid, Solid[cell]);
 					}
 				}
 				else
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d2(i, j, Solid_p, Solid[cell]);
-						grow_d3(i, j, Solid_p, Solid[cell]);
-						grow_d4(i, j, Solid_p, Solid[cell]);
-						grow_d6(i, j, Solid_p, Solid[cell]);
-						grow_d7(i, j, Solid_p, Solid[cell]);
+						grow_d2(i, j, Solid, Solid[cell]);
+						grow_d3(i, j, Solid, Solid[cell]);
+						grow_d4(i, j, Solid, Solid[cell]);
+						//grow_d6(i, j, Solid, Solid[cell]);
+						//grow_d7(i, j, Solid, Solid[cell]);
 					}
 				}
 			}
@@ -206,49 +200,42 @@ void Porous2D::grow_alone()
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d1(i, j, Solid_p, Solid[cell]);
-						grow_d2(i, j, Solid_p, Solid[cell]);
-						grow_d3(i, j, Solid_p, Solid[cell]);
-						grow_d5(i, j, Solid_p, Solid[cell]);
-						grow_d6(i, j, Solid_p, Solid[cell]);
+						grow_d1(i, j, Solid, Solid[cell]);
+						grow_d2(i, j, Solid, Solid[cell]);
+						grow_d3(i, j, Solid, Solid[cell]);
+						//grow_d5(i, j, Solid, Solid[cell]);
+						//grow_d6(i, j, Solid, Solid[cell]);
 					}
 				}
 				else if (j == this->NY - 1)
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d1(i, j, Solid_p, Solid[cell]);
-						grow_d3(i, j, Solid_p, Solid[cell]);
-						grow_d4(i, j, Solid_p, Solid[cell]);
-						grow_d7(i, j, Solid_p, Solid[cell]);
-						grow_d8(i, j, Solid_p, Solid[cell]);
+						grow_d1(i, j, Solid, Solid[cell]);
+						grow_d3(i, j, Solid, Solid[cell]);
+						grow_d4(i, j, Solid, Solid[cell]);
+						//grow_d7(i, j, Solid, Solid[cell]);
+						//grow_d8(i, j, Solid, Solid[cell]);
 					}
 				}
 				else
 				{
 					if (this->Solid[cell] != 0)
 					{
-						grow_d1(i, j, Solid_p, Solid[cell]);
-						grow_d2(i, j, Solid_p, Solid[cell]);
-						grow_d3(i, j, Solid_p, Solid[cell]);
-						grow_d4(i, j, Solid_p, Solid[cell]);
-						grow_d5(i, j, Solid_p, Solid[cell]);
-						grow_d6(i, j, Solid_p, Solid[cell]);
-						grow_d7(i, j, Solid_p, Solid[cell]);
-						grow_d8(i, j, Solid_p, Solid[cell]);
+						grow_d1(i, j, Solid, Solid[cell]);
+						grow_d2(i, j, Solid, Solid[cell]);
+						grow_d3(i, j, Solid, Solid[cell]);
+						grow_d4(i, j, Solid, Solid[cell]);
+						//grow_d5(i, j, Solid, Solid[cell]);
+						//grow_d6(i, j, Solid, Solid[cell]);
+						//grow_d7(i, j, Solid, Solid[cell]);
+						//grow_d8(i, j, Solid, Solid[cell]);
 					}
 				}
 			}
 		}
 	}
-	// std::cout << "Neighbor generated" << endl;
-
-	// copy this Solid_p to Solid
-#pragma omp parallel for
-	for (int i = 0; i < NX * NY; i++) Solid[i] = Solid_p[i];
 		
-	// std::cout << "One time grow compeleted" << endl;
-	delete[] Solid_p;
 }
 
 bool Porous2D::fixhole()
@@ -483,10 +470,13 @@ bool Porous2D::smooth()
 double Porous2D::CalcPor()
 {
 	double t_temp = 0;
-	for (int i = 0; i < NX * NY; i++)
+	int i;
+#pragma omp parallel for private(i) reduction(+:t_temp)
+	for (i = 0; i < NX * NY; i++)
 	{
 			t_temp += ((Solid[i]>0)? 1 : 0);
 	}
+	
 	return (1 - t_temp / (NX * NY));
 }
 
