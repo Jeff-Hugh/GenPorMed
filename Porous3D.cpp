@@ -50,9 +50,9 @@ void Porous3D::Generation(int* s)
 
 // delete CoreID
 #pragma omp parallel for
-	for (int i = 0; i < NX * NY; i++)
+	for (int i = 0; i < NX * NY * NZ; i++)
 	{
-		if (Solid[i] >= 1) Solid[i] = 1;
+		if (Solid[i] > 0) Solid[i] = 1;
 	}
 
 	DeleteDeadZone();
@@ -65,20 +65,12 @@ void Porous3D::Generation(int* s)
 # pragma omp parallel for
 	for (int i = 0; i < NX*NY*NZ; i++) s[i] = Solid[i];
 		
-	delete[] this->Solid;
 }
 
 void Porous3D::grow()
 {
 	Grow_Times += 1;
-	std::cout << "Grow Times: " << Grow_Times << endl;
-
-	int* Solid_p = new int[NX * NY * NZ]{};
-# pragma omp parallel for
-	for (int i = 0; i < NX * NY * NZ; i++)
-		Solid_p[i] = Solid[i];
-			
-	// cout << "Copy compeleted" << endl;
+	// std::cout << "Grow Times: " << Grow_Times << endl;
 
 # pragma omp parallel for 
 	for (int i = 0; i < this->NX; i++)
@@ -86,8 +78,9 @@ void Porous3D::grow()
 			for (int k = 0; k < this->NZ; k++)
 			{
 				const int cell = CellIndex(i, j, k);
-				if (this->Solid[cell] == 1)
+				if (this->Solid[cell] != 0)		/// if solid
 				{
+					int core_id = Solid[cell];
 					for (int x = -1; x <= 1; x++)
 						for (int y = -1; y <= 1; y++)
 							for (int z = -1; z <= 1; z++)
@@ -98,21 +91,44 @@ void Porous3D::grow()
 									switch (abs(x) + abs(y) + abs(z))
 									{
 									case 0:
-										Solid_p[cell_n] = 1;
 										break;
 									case 1:		// face neighbor
+										// grow in X direction
 										if ((x != 0) && (rand() / double(RAND_MAX)) < p_surface) 
-											Solid_p[cell_n] = 1;
-										if ((y != 0) && (rand() / double(RAND_MAX)) < p_surface)
-											Solid_p[cell_n] = 1;
-										if ((z != 0) && (rand() / double(RAND_MAX)) < p_surface / 8)
-											Solid_p[cell_n] = 1;
+										{
+											int diff_num = DifferentNumber(i + x, j + y, k + z, core_id);
+											if (diff_num == 0) Solid[cell_n] = core_id;
+										}
+											
+										// grow in Y direction
+										if ((y != 0) && (rand() / double(RAND_MAX)) < p_surface) 
+										{
+											int diff_num = DifferentNumber(i + x, j + y, k + z, core_id);
+											if (diff_num == 0) Solid[cell_n] = core_id;
+										}
+
+										// grow in Z direction
+										if ((z != 0) && (rand() / double(RAND_MAX)) < p_surface) 
+										{
+											int diff_num = DifferentNumber(i + x, j + y, k + z, core_id);
+											if (diff_num == 0) Solid[cell_n] = core_id;
+										}
 										break;
 									case 2:		// edge neighbor
-										if ((rand() / double(RAND_MAX)) < p_edge) Solid_p[cell_n] = 1;
+										// if delete this case option, the boundary of the final porous media will be more smooth
+										if ((rand() / double(RAND_MAX)) < p_edge) 
+										{
+											int diff_num = DifferentNumber(i + x, j + y, k + z, core_id);
+											if (diff_num == 0) Solid[cell_n] = core_id;
+										}
 										break;
 									case 3:		/// point neighbor
-										if ((rand() / double(RAND_MAX)) < p_point) Solid_p[cell_n] = 1;
+										// if delete this case option, the boundary of the final porous media will be more smooth
+										if ((rand() / double(RAND_MAX)) < p_point)
+										{
+											int diff_num = DifferentNumber(i + x, j + y, k + z, core_id);
+											if (diff_num == 0) Solid[cell_n] = core_id;
+										}
 										break;
 									default:
 										break;
@@ -122,17 +138,6 @@ void Porous3D::grow()
 				}
 			}
 
-# pragma omp parallel for
-	for (int i = 0; i < this->NX; i++)
-		for (int j = 0; j < this->NY; j++)
-			for (int k = 0; k < this->NZ; k++)
-			{
-				const int cell = CellIndex(i, j, k);
-				int s_temp = this->Solid[cell] + Solid_p[cell];
-				if (s_temp > 0) this->Solid[cell] = 1;
-			}
-	
-	delete[] Solid_p;
 }
 
 void Porous3D::output2tecplot(std::string filename)
@@ -149,19 +154,18 @@ void Porous3D::output2tecplot(std::string filename)
 	double dy = 1.0 / this->NY;
 	double dz = 1.0 / this->NZ;
 	for (int i = 0; i < this->NX; i++)
-	{
-		out_buffer = "";
-
 		for (int j = 0; j < this->NY; j++)
+		{
+			out_buffer = "";
+
 			for (int k = 0; k < this->NZ; k++)
 			{
 				const int cell = CellIndex(i, j, k);
 				out_buffer += std::to_string(i * dx) + "," + std::to_string(j * dy) + "," + std::to_string(k * dz) + "," + std::to_string(this->Solid[cell]) + "\n";
 			}
+			outfile << out_buffer;
+		}
 
-		outfile << out_buffer;
-	}
-	
 	outfile.close();
 	std::cout << "Output completed" << endl;
 }
@@ -169,15 +173,12 @@ void Porous3D::output2tecplot(std::string filename)
 double Porous3D::CalcPor()
 {
 	double t_temp = 0.0;
-	int i, j, k;
-#pragma omp parallel for private(i,j,k) reduction(+:t_temp)
-	for (i = 0; i < NX; i++)
-		for (j = 0; j < NY; j++)
-			for (k = 0; k < NZ; k++)
-			{
-				const int cell = CellIndex(i, j, k);
-				t_temp += Solid[cell];
-			}
+	int i;
+#pragma omp parallel for private(i) reduction(+:t_temp)
+	for (i = 0; i < NX * NY * NZ; i++)
+	{
+			t_temp += ((Solid[i]>0)? 1 : 0);
+	}
 			
 	return (1 - t_temp / (NX * NY * NZ));
 }
@@ -209,7 +210,7 @@ int Porous3D::NearSolid(int i, int j, int k)
 
 Porous3D::~Porous3D()
 {
-	
+	delete[] this->Solid;
 }
 
 /// 0: fluid
@@ -362,4 +363,21 @@ void Porous3D::DeleteDeadZone()
 #pragma omp parallel for
 	for (int i = 0; i < NX * NY * NZ; i++)
 		if (Solid[i] == 2) Solid[i] = 0;
+}
+
+int Porous3D::DifferentNumber(int i, int j, int k, int core_id)
+{
+	int Num = 0;
+	for (int x = -1; x <= 1; x++)
+		for (int y = -1; y <= 1; y++)
+			for (int z = -1; z <= 1; z++)
+			{
+				if (!((i + x) < 0 || (j + y) < 0 || (k + z) < 0 || (i + x) > this->NX - 1 || (j + y) > this->NY - 1 || (k + z) > this->NZ - 1))
+				{
+					int cell = CellIndex(i + x, j + y, k + z);
+					if ((Solid[cell] != core_id) && (Solid[cell] != 0)) Num++;
+				}
+			}
+
+	return Num;
 }

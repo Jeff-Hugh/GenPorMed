@@ -35,6 +35,7 @@ private:
 	void grow();
 	int CellIndex(int x, int y, int z);
 	void InfectFluid(int i, int j, int k);
+	int DifferentNumber(int i, int j, int k, int core_id);
 
 };
 
