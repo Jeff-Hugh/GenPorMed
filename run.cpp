@@ -1,6 +1,6 @@
 /// \reference Wang, M., Wang, J., Pan, N., & Chen, S. (2007). 
 /// Mesoscopic predictions of the effective thermal conductivity for microscale random porous media. 
-/// Physical Review E - Statistical, Nonlinear, and Soft Matter Physics, 75(3), 1¨C10.
+/// Physical Review E - Statistical, Nonlinear, and Soft Matter Physics, 75(3), 036702.
 /// https://doi.org/10.1103/PhysRevE.75.036702
 /// 
 
