@@ -101,13 +101,47 @@ void Porous2D::output2tecplot(const int Total_M, const int Total_N, int* S, stri
 		for (int i = 0; i < Total_M; i++)
 		{
 			const int cell = CellIndex(i, j, Total_M, Total_N);
-			outfile << i << "," << j << ", " << S[cell] << endl;
+			outfile << i << "," << j << "," << S[cell] << endl;
 		}
 
 	outfile.close();
 	std::cout << "Output completed for tecplot." << endl;
 }
 
+void Porous2D::ReadTecplot2D(const int Total_M, const int Total_N, int* S, std::string filename)
+{
+	// If this function is used, parameters in Constructor are useless.
+	
+	std::string line;
+	ifstream readin;
+	readin.open(filename, ios::in);
+	if (readin.fail())		// open file failed
+	{
+		cout << "Open file failed.";
+	}
+	else		// open file successfully
+	{
+		// skip 3 lines in the head
+		for (int i = 0; i < 3; i++) readin.ignore(10, '\n');
+
+		while(getline(readin, line))
+		{
+			std::vector<int> x;
+			istringstream record(line);
+			for (int j; record >> j;)
+			{
+				x.push_back(j);
+				if (record.peek() == ',') record.ignore();
+			}
+			if (x.size() == 3)
+			{
+				std::cout << x[0] << "," << x[1] << "," << x[2] << endl;
+				const int cell = CellIndex(x[0], x[1], Total_M, Total_N);
+				S[cell] = x[2];
+			}
+		}
+	}
+}
 
 /// Grow in eight directions.
 ///

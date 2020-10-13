@@ -16,6 +16,7 @@ class Porous2D
         Porous2D(int nx, int ny, double por, double p, double p_z, double p_f);
 		~Porous2D();
 
+		void ReadTecplot2D(const int Total_M, const int Total_N, int* S, std::string filename);
 		void Generation(int* s);
         void output2tecplot(const int Total_M, const int Total_N, int* S, std::string filename);
 		void output2png(const int Total_M, const int Total_N, int* S, std::string filename);

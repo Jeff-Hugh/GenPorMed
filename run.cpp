@@ -15,6 +15,7 @@ using namespace std;
 
 void Generate2D();
 void Generate3D();
+void ReadFromFile();
 
 int main()
 {
@@ -45,6 +46,27 @@ void Generate2D()
 
 	porous.output2tecplot(M, N, s, "test.plt"); 
 
+	delete[] s;
+}
+
+void ReadFromFile()
+{
+	const int M = 200;
+	const int N = 200;
+	const double phi = 0.5;			/// target porosity
+	const double p_cd = 0.005;		/// core distribution probability
+	const double z = 0.05;     /// Probability in orthogonal direction
+	const double f = 0.0125;   /// Probability in oblique direction
+	
+	int* s = new int[M * N];
+	memset(s, 0, sizeof(int)*M*N);		/// initialize to 0
+
+	Porous2D porous(M, N, phi, p_cd, z, f);
+
+	// If ReadTecplot2D function is used, parameters in Constructor are useless.
+	porous.ReadTecplot2D(M, N, s, "Por0.2.plt");
+
+	porous.output2tecplot(M, N, s, "test.plt");
 	delete[] s;
 }
 
