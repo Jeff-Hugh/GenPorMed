@@ -135,7 +135,7 @@ void Porous2D::ReadTecplot2D(const int Total_M, const int Total_N, int* S, std::
 			}
 			if (x.size() == 3)
 			{
-				std::cout << x[0] << "," << x[1] << "," << x[2] << endl;
+				//std::cout << x[0] << "," << x[1] << "," << x[2] << endl;
 				const int cell = CellIndex(x[0], x[1], Total_M, Total_N);
 				S[cell] = x[2];
 			}
