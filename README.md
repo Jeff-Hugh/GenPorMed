@@ -20,17 +20,25 @@ The method **output2tecplot** of Class **Porous2D** and **Porous3D** can generat
 
 ## How to run
 1. Clone the repo
-
-    git clone https://github.com/huiselilun/GenPorMed.git
-
+```shell
+    git clone https://github.com/Jeff-Hugh/GenPorMed.git
+```
 2. Compile
 
+    Make sure the boost path in CMakeLists.txt is correct in your system.
+```shell
+    cmake ./
     make
+```
+    or just use command
+```shell
+    g++ Porous2D.cpp Porous3D.cpp run.cpp -lboost_system -lboost_thread -lboost_iostreams -std=c++11 -fopenmp -o run
+```
 
 3. Run
-
+```shell
     ./run
-
+```
 # License
 Distributed under the GPL v3.0 License.
 
