@@ -22,7 +22,7 @@ int main()
 	clock_t startTime, endTime;
 	startTime = clock();
 
-	Generate3D();
+	Generate2D();
 
 	endTime = clock();
 	cout << "Totle Time : " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
@@ -44,7 +44,7 @@ void Generate2D()
 	Porous2D porous(M, N, phi, p_cd, z, f);
 	porous.Generation(s);
 
-	porous.output2tecplot(M, N, s, "test.plt"); 
+	porous.output2tecplot(M, N, s, "PorMed_2D.plt"); 
 
 	delete[] s;
 }
@@ -66,7 +66,7 @@ void ReadFromFile()
 	// If ReadTecplot2D function is used, parameters in Constructor are useless.
 	porous.ReadTecplot2D(M, N, s, "Por0.2.plt");
 
-	porous.output2tecplot(M, N, s, "test.plt");
+	porous.output2tecplot(M, N, s, "PorMed.plt");
 	delete[] s;
 }
 
@@ -87,7 +87,7 @@ void Generate3D()
 	Porous3D porous(Nx, Ny, Nz, phi, p_cd, p_surface, p_edge, p_point);
 	porous.Generation(s);
 
-	porous.output2tecplot("test.plt"); 
+	porous.output2tecplot("PorMed_3D.plt"); 
 
 	delete[] s;
 }

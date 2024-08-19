@@ -16,7 +16,7 @@ The most of this project is based on the C++ standard library.
 
 The method **output2png** of Class **Porous2D** and **Porous3D** can generate PNG file directly, which is base on the **GnuPlot** and **gnuplot-iostream**. If you need this function, make sure to install **GnuPlot** and **Boost C++ library** on your system. If you don't need, just comment the related code.
 
-The method **output2tecplot** of Class **Porous2D** and **Porous3D** can generate plt file for [Tecplot](https://www.tecplot.com/).
+The method **output2tecplot** of Class **Porous2D** and **Porous3D** can generate plt file for [Tecplot](https://www.tecplot.com/) and __GenerateSTL.py__ program.
 
 ## How to run
 1. Clone the repo
@@ -39,6 +39,12 @@ The method **output2tecplot** of Class **Porous2D** and **Porous3D** can generat
 ```shell
     ./run
 ```
+
+4. If you want to generate the STL file, you should use the function __output2tecplot__ of Porous2D to output a file like __lattice.dat__. Python program, numpy and pandas Python packages should also be installed. Then run the py file.
+```shell
+    pip install numpy pandas
+    python GenerateSTL.py
+```
 # License
 Distributed under the GPL v3.0 License.
 
@@ -49,3 +55,15 @@ Distributed under the GPL v3.0 License.
 
 3D porous figure
 ![porosity = 0.5](fig/porous_3D_0.5.png)
+
+# Please cite this repo
+```tex
+@software{Li_Software_2024,
+  author = {Li, Jianhui},
+  month = {8},
+  title = {GenPorMed},
+  url = {https://github.com/Jeff-Hugh/GenPorMed},
+  version = {1.1},
+  year = {2024}
+}
+```

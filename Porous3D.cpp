@@ -150,9 +150,7 @@ void Porous3D::output2tecplot(std::string filename)
 	/// output solid position
 	outfile << "VARIABLES = \"X\", \"Y\", \"Z\", \"value\" " << endl;
 	outfile << "ZONE  t=\"solid\" I = " << this->NX << ", J = " << this->NY << ", K = " << this->NZ << ", F = point" << endl;
-	double dx = 1.0 / this->NX;
-	double dy = 1.0 / this->NY;
-	double dz = 1.0 / this->NZ;
+
 	for (int i = 0; i < this->NX; i++)
 		for (int j = 0; j < this->NY; j++)
 		{
@@ -161,7 +159,7 @@ void Porous3D::output2tecplot(std::string filename)
 			for (int k = 0; k < this->NZ; k++)
 			{
 				const int cell = CellIndex(i, j, k);
-				out_buffer += std::to_string(i * dx) + "," + std::to_string(j * dy) + "," + std::to_string(k * dz) + "," + std::to_string(this->Solid[cell]) + "\n";
+				out_buffer += std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k) + "," + std::to_string(this->Solid[cell]) + "\n";
 			}
 			outfile << out_buffer;
 		}
