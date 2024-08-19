@@ -58,12 +58,12 @@ Distributed under the GPL v3.0 License.
 
 # Please cite this repo
 ```tex
-@software{Li_Software_2024,
-  author = {Li, Jianhui},
-  month = {8},
-  title = {GenPorMed},
-  url = {https://github.com/Jeff-Hugh/GenPorMed},
-  version = {1.1},
-  year = {2024}
+@software{Li_GenPorMed_2024,
+author = {Li, Jianhui},
+month = aug,
+title = {{GenPorMed}},
+url = {https://github.com/Jeff-Hugh/GenPorMed},
+version = {1.1},
+year = {2024}
 }
 ```
